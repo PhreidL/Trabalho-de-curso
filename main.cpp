@@ -1,6 +1,5 @@
 /*
-O arquivo gerado é separado em uma coluna de CPNJ e uma coluna de CPF, 
-assim, não estando na exata sequência do arquivo original.
+O arquivo gerado é separado em uma coluna de CPNJ e uma coluna de CPF.
 */
 #include <stdio.h>
 #include <stdlib.h>
