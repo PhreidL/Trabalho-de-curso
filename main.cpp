@@ -78,8 +78,28 @@ void calcCPF(char* cpf){
     cpf[10] = num + '0';
 }
 
+/*void gravaArquivoS(char cnpj[A][14], char cpf[A][13]){
+	FILE *calc;
+    calc = fopen ("NOVABASESequencial.txt", "w+");
+	fprintf(calc,"     CNPJ      |     CPF    \n");
+	fprintf(calc,"____________________________\n");
+    for(int i = 0; i < A; i++){
+    	for(int j = 0; j < 14; j++){
+
+            fprintf(calc, "%c", cnpj[i][j]);
+	    }
+      	fprintf(calc," | ", cnpj[i][15]);
+	    for(int j = 0; j < 11; j++){
+	        fprintf(calc, "%c", cpf[i][j]);
+            //printf("%c", cpf[i][j]);
+	    }
+	    fprintf(calc,"\n", cpf[i][13]);
+	}
+	fclose(calc);
+}*/
+
 //função que grava os CNPJs e os CPFs com seus digitos verificadores
-void gravaArquivo(char cnpj[A][14], char cpf[A][13]){
+void gravaArquivoP(char cnpj[A][14], char cpf[A][13]){
 	FILE *calc;
     calc = fopen ("NOVABASE.txt", "w+");
 	fprintf(calc,"     CNPJ      |     CPF    \n");
@@ -99,63 +119,46 @@ void gravaArquivo(char cnpj[A][14], char cpf[A][13]){
 	fclose(calc);
 }
 
+void processamentoS(char cpf[A][13], char cnpj[A][14]){
+	
+	std::clock_t c_start = std::clock();
+    auto t_start = std::chrono::high_resolution_clock::now();
+	for(int i = 0; i < 600000; i++){
+		calcCPF(cpf[i]);
+		calcCNPJ(cnpj[i]);
+	}
+	std::clock_t c_end = std::clock();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    printf("Tempo Serial: %f", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
+    //gravaArquivoS(cnpj,cpf);
+}
+
 /*função que faz o processamento do cálculo dos digitos do CPNJ e do CPF,
 separando em várias threads e por fim, gravando os CPNJ's e CPF's com os
 digitos devidamente gerados 
 */
-void processamento(char cpf[A][13], char cnpj[A][14]){
+void processamentoP(char cpf[A][13], char cnpj[A][14]){
+	
 	std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
 
-    for(int i = 0; i < 60000; i++){
+    for(int i = 0; i < 300000; i++){
         thread t1(calcCPF, cpf[i]);
-        thread t3(calcCPF, cpf[i + 60000]);
-        thread t5(calcCPF, cpf[i + 120000]);
-        thread t7(calcCPF, cpf[i + 180000]);
-        thread t9(calcCPF, cpf[i + 240000]);
-        thread t11(calcCPF, cpf[i + 300000]);
-        thread t13(calcCPF, cpf[i + 360000]);
-        thread t15(calcCPF, cpf[i + 420000]);
-        thread t17(calcCPF, cpf[i + 480000]);
-        thread t19(calcCPF, cpf[i + 540000]);
+        thread t3(calcCPF, cpf[i + 300000]);
 
         thread t2(calcCNPJ, cnpj[i]);
-        thread t4(calcCNPJ, cnpj[i + 60000]);
-        thread t6(calcCNPJ, cnpj[i + 120000]);
-        thread t8(calcCNPJ, cnpj[i + 180000]);
-        thread t10(calcCNPJ, cnpj[i + 240000]);
-        thread t12(calcCNPJ, cnpj[i + 300000]);
-        thread t14(calcCNPJ, cnpj[i + 360000]);
-        thread t16(calcCNPJ, cnpj[i + 420000]);
-        thread t18(calcCNPJ, cnpj[i + 480000]);
-        thread t20(calcCNPJ, cnpj[i + 540000]);
+        thread t4(calcCNPJ, cnpj[i + 300000]);
 
         t1.join();
         t2.join();
         t3.join();
         t4.join();
-        t5.join();
-        t6.join();
-        t7.join();
-        t8.join();
-        t9.join();
-        t10.join();
-        t11.join();
-        t12.join();
-        t13.join();
-        t14.join();
-        t15.join();
-        t16.join();
-        t17.join();
-        t18.join();
-        t19.join();
-        t20.join();
     }
     
     std::clock_t c_end = std::clock();
     auto t_end = std::chrono::high_resolution_clock::now();
-    printf("Tempo: %f", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
-    gravaArquivo(cnpj,cpf);
+    printf("Tempo Paralelo: %f\n", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
+    gravaArquivoP(cnpj,cpf);
 }
 
 //função faz a separação e identificação dos CPNJs e CPFs
@@ -179,7 +182,8 @@ void identifica(char temp[B][13]){
             lCpf++;
         }
     }
-    processamento(cpf,cnpj);
+    processamentoP(cpf,cnpj);
+    processamentoS(cpf,cnpj);
 }
 
 int main(){
